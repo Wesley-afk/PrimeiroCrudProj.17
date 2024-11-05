@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -54,6 +55,8 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
         jButtonDeletar = new javax.swing.JButton();
         seletorDeArquivos = new javax.swing.JFileChooser();
         usuario_img = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tabela = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -175,6 +178,28 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
 
         usuario_img.setText("img_aqui");
 
+        tabela.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "ID_flauta", "ano_fabricacao", "Marca"
+            }
+        ));
+        tabela.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                tabelaAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        jScrollPane1.setViewportView(tabela);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -182,6 +207,8 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(32, 32, 32)
                 .addComponent(seletorDeArquivos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(57, 57, 57)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -198,7 +225,7 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
                             .addComponent(jButtonDelete)
                             .addComponent(jLabel8)
                             .addComponent(Jtxt_IDflautaPesquisar1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 523, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabelDeletarFlauta)
                             .addComponent(jTxt_flautaCadastrada, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -228,15 +255,45 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(Jtxt_IDflautaPesquisada, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(usuario_img)
-                .addGap(63, 63, 63)
-                .addComponent(seletorDeArquivos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(usuario_img)
+                        .addGap(63, 63, 63)
+                        .addComponent(seletorDeArquivos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void tabela(String sql){
+        try {
+            Connection con = (Connection)DriverManager.getConnection("jdbc:mysql://localhost/teste", "root", "");
+            PreparedStatement teste = (PreparedStatement) con.prepareStatement(sql);
+            teste.execute();
+            
+            ResultSet resultado = teste.executeQuery(sql);
+            
+            DefaultTableModel model = (DefaultTableModel) tabela.getModel();
+            model.setNumRows(0);
+            
+            while(resultado.next())
+                {    
+                model.addRow(new Object[]
+                {
+                    resultado.getString("ID_flauta"),
+                    resultado.getString("ano_fabricacao"),
+                    resultado.getString("marca")
+                });
+            }
+            teste.close();
+            con.close();
+                    
+        } catch (SQLException ex) {
+            Logger.getLogger(Projeto_17_CRUD.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     private void jButtonAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAtualizarActionPerformed
         try {
             Connection conexao = null;
@@ -376,6 +433,11 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
             // usuario_img.setIcon(filePath);
     }//GEN-LAST:event_seletorDeArquivosActionPerformed
 
+    private void tabelaAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tabelaAncestorAdded
+        // TODO add your handling code here:
+        this.tabela("SELECT * FROM flauta ORDER BY ID_flauta ASC");
+    }//GEN-LAST:event_tabelaAncestorAdded
+
     /**
      * @param args the command line arguments
      */
@@ -430,9 +492,11 @@ public class Projeto_17_CRUD extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabelDeletarFlauta;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jText_Modelo;
     private javax.swing.JTextField jTxt_flautaCadastrada;
     private javax.swing.JFileChooser seletorDeArquivos;
+    private javax.swing.JTable tabela;
     private javax.swing.JLabel usuario_img;
     // End of variables declaration//GEN-END:variables
 }
